@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,11 +29,11 @@ public class MovieCataglogResource {
         CatalogItems catalogItems = new CatalogItems();
         catalogItems.setUserId(userId);
 
-        UserRatings userMovieRatings = restTemplate.getForObject("http://localhost:8092/ratings/user/"+ userId, UserRatings.class);
+        UserRatings userMovieRatings = restTemplate.getForObject("http://movie-rating-service/ratings/user/"+ userId, UserRatings.class);
         List<MovieRating> movieRatings  = userMovieRatings.getRatings();
 
         List<CatalogItem> itemsList = movieRatings.stream().map( movie -> {
-            Movie movieInfo = restTemplate.getForObject("http://localhost:8091/movie-info/"+ movie.getMovieId(), Movie.class);
+            Movie movieInfo = restTemplate.getForObject("http://movie-info-service/movie-info/"+ movie.getMovieId(), Movie.class);
             return (new CatalogItem(movieInfo.getMovieName(), movieInfo.getMovieDesc(), movie.getRatings()));
         })
         .collect(Collectors.toList());
